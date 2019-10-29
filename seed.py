@@ -2,11 +2,12 @@
 
 from sqlalchemy import func
 from model import User
-# from model import Rating
-# from model import Movie
+from model import Rating
+from model import Movie
 
 from model import connect_to_db, db
 from server import app
+from datetime import datetime
 
 
 def load_users():
@@ -37,9 +38,69 @@ def load_users():
 def load_movies():
     """Load movies from u.item into database."""
 
+    print("Movies")
+
+    Movie.query.delete()
+
+    for row in open("seed_data/u.item"):
+        row = row.rstrip()
+        fields = row.split("|")
+        
+        movie_id = fields[0]
+        title = fields[1]
+        released_at = fields[2]
+        imdb_url = fields[4]
+
+        date_format = "%d-%b-%Y"
+        released_at = datetime.strptime(released_at, date_format)
+
+        # split -> list
+        # method 1: if index != len(list)-1, then list += item
+        # method 2: list.pop -> list now has last item removed
+        # join all remaining
+
+        words = title.split(" ")
+        words.pop()
+        title = " ".join(words)
+
+        # if len(imdb_url) >= 128:
+        #     print("URL length:", len(imdb_url))
+        #     print(movie_id, title)
+
+        # if len(title) >= 64:
+        #     print("Title length:", len(title))
+        #     print(movie_id, title)
+
+        movie = Movie(movie_id=movie_id,
+                      title=title,
+                      released_at=released_at,
+                      imdb_url=imdb_url)
+
+        db.session.add(movie)
+
+    db.session.commit()
+
 
 def load_ratings():
     """Load ratings from u.data into database."""
+
+    print("Ratings")
+
+    Rating.query.delete()
+
+    for row in open("seed_data/u.data"):
+        row = row.rstrip()
+        fields = row.split("\t")
+
+        user_id, movie_id, score, timestamp = fields
+
+        rating = Rating(user_id=user_id,
+                        movie_id=movie_id,
+                        score=score)
+        db.session.add(rating)
+
+    db.session.commit()
+
 
 
 def set_val_user_id():
