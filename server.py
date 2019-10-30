@@ -2,7 +2,7 @@
 
 from jinja2 import StrictUndefined
 
-from flask import Flask, render_template, redirect, request, flash, session
+from flask import Flask, render_template, redirect, request, flash, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 
 from model import connect_to_db, db, User, Rating, Movie
@@ -52,10 +52,52 @@ def process_registration():
     if User.query.filter(User.email == email).first():
         pass
     else: 
-        User(email=email, password=password)
+        user = User(email=email, password=password)
+        db.session.add(user)
+        db.session.commit()
     # if user email does not exist, add to db
 
-    return redirect('/register')
+    return redirect('/')
+
+
+@app.route('/login', methods=['GET'])
+def display_login_page():
+
+    return render_template("login.html")
+
+
+@app.route('/login', methods=['POST'])
+def login_user():
+    """User login page."""
+
+    #query email and password in database. 
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    user = User.query.filter((User.email == email),(User.password == password)).first()
+
+    if user:
+    #if matches, log in user (add user_id to flask session)
+        session['user_email'] = user.email
+        session['user_id'] = user.user_id
+        # g.user = user
+        # flash- logged in
+        flash("Successfully logged in!")
+        #redirect to homepage
+        return redirect('/')
+    else: 
+        flash("That is not a valid email & password.")
+        return redirect('/login')   
+
+
+@app.route('/logout')
+def logout_user():
+    """Remove user from session."""
+
+    del session['user_email']
+    flash("Successfully logged out!")
+
+    return redirect('/')
 
 
 if __name__ == "__main__":
