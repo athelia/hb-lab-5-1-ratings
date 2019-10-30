@@ -51,6 +51,12 @@ def load_movies():
         released_at = fields[2]
         imdb_url = fields[4]
 
+        # (movie_id
+        #  title,
+        #  released_at,
+        #  _,
+        #  imdb_url) = fields[:5]
+
         date_format = "%d-%b-%Y"
         released_at = datetime.strptime(released_at, date_format)
 
@@ -92,7 +98,7 @@ def load_ratings():
         row = row.rstrip()
         fields = row.split("\t")
 
-        user_id, movie_id, score, timestamp = fields
+        user_id, movie_id, score, _ = fields
 
         rating = Rating(user_id=user_id,
                         movie_id=movie_id,
