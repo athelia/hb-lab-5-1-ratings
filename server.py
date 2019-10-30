@@ -47,12 +47,14 @@ def process_registration():
 
     email = request.form.get('email')
     password = request.form.get('password')
+    age = request.form.get('age')
+    zipcode = request.form.get('zipcode')
 
     # if user email already exists, ignore
     if User.query.filter(User.email == email).first():
         pass
     else: 
-        user = User(email=email, password=password)
+        user = User(email=email, password=password, age=age, zipcode=zipcode)
         db.session.add(user)
         db.session.commit()
     # if user email does not exist, add to db
@@ -74,6 +76,7 @@ def login_user():
     email = request.form.get('email')
     password = request.form.get('password')
 
+
     user = User.query.filter((User.email == email),(User.password == password)).first()
 
     if user:
@@ -84,7 +87,7 @@ def login_user():
         # flash- logged in
         flash("Successfully logged in!")
         #redirect to homepage
-        return redirect('/')
+        return redirect('/user-page')
     else: 
         flash("That is not a valid email & password.")
         return redirect('/login')   
@@ -98,6 +101,45 @@ def logout_user():
     flash("Successfully logged out!")
 
     return redirect('/')
+
+
+@app.route('/user-page')
+def display_user_page():
+    """Show specific information about user."""
+
+    user = User.query.filter(User.user_id == session['user_id']).first()
+
+    ratings = user.ratings
+    # ratings = Rating.query.filter(Rating.user_id == session['user_id']).all()
+
+    # for rating in ratings:
+    #     movie = Movie.query.filter(rating.movie_id == Movie.movie_id).first()
+    #     rating.movie_name = movie.title
+    #     print(rating.movie.title)
+
+    return render_template('user_page.html', 
+                            user=user, 
+                            # ratings=ratings,
+                            )
+
+@app.route('/movies')
+def display_movie_list():
+    """Display list of all movies."""
+
+    movies = Movie.query.order_by(Movie.title).all()
+
+    return render_template('movie_list.html', movies=movies)
+
+
+@app.route('')
+def display_movie_details():
+    """Display movie deatils."""
+
+    # movie = 
+
+    return render_template('movie_details.html', movie=movie)
+
+
 
 
 if __name__ == "__main__":
