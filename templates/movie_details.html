@@ -1,13 +1,20 @@
 {% extends 'base.html' %}
 {% block content %}
 
-  <h2>Movies</h2>
+  <h2>{{ movie.title }}</h2>
+
+      <p>Released: {{ movie.released_at }}</p>
+      <p><a href="{{ movie.imdb_url }}">IMDB link</a></p>
+
+  <form action="" method="POST">
+
+  <h3>All ratings:</h3>
 
     <ul>
 
-      {% for rating in movies %}
+      {% for rating in movie.ratings %}
 
-        <li> <a href="/{{ movie.movie_id }}">{{ movie.title }}</a></li>
+        <li>{{ rating.score }}</li>
 
       {% endfor %}
       

@@ -98,6 +98,7 @@ def logout_user():
     """Remove user from session."""
 
     del session['user_email']
+    del session['user_id']
     flash("Successfully logged out!")
 
     return redirect('/')
@@ -131,14 +132,26 @@ def display_movie_list():
     return render_template('movie_list.html', movies=movies)
 
 
-@app.route('')
-def display_movie_details():
+@app.route('/<movie_id>')
+def display_movie_details(movie_id):
     """Display movie deatils."""
 
-    # movie = 
+    movie = Movie.query.filter(Movie.movie_id == movie_id).one()
+    print(movie)
 
     return render_template('movie_details.html', movie=movie)
 
+
+@app.route('/rate-movie')
+def add_or_update_movie_rating():
+    """Logged-in user can update or add a new rating."""
+
+    if session['user_id']:
+        # if rating + userID combo exists
+        # ratings table
+        # Flask/SQLAlchemy equivalent of UPDATE
+        # else: 
+        # add new rating
 
 
 
