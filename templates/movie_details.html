@@ -5,8 +5,17 @@
 
       <p>Released: {{ movie.released_at }}</p>
       <p><a href="{{ movie.imdb_url }}">IMDB link</a></p>
-
-  <form action="" method="POST">
+  {% if session.get('user_id', None) %}
+  <form action="/rate-movie/{{ movie.movie_id }}" method="POST">
+    <label for="rating">Add or update your movie rating:</label>
+    <input type="radio" id="rating" name="rating" value="1">1
+    <input type="radio" id="rating" name="rating" value="2">2
+    <input type="radio" id="rating" name="rating" value="3">3
+    <input type="radio" id="rating" name="rating" value="4">4
+    <input type="radio" id="rating" name="rating" value="5">5
+    <input type="submit">
+  </form>
+  {% endif %}
 
   <h3>All ratings:</h3>
 

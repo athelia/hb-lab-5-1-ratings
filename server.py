@@ -7,6 +7,8 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 from model import connect_to_db, db, User, Rating, Movie
 
+from sqlalchemy import asc, update
+
 
 app = Flask(__name__)
 
@@ -142,18 +144,35 @@ def display_movie_details(movie_id):
     return render_template('movie_details.html', movie=movie)
 
 
-@app.route('/rate-movie')
-def add_or_update_movie_rating():
+@app.route('/rate-movie/<movie_id>', methods=['POST'])
+def add_or_update_movie_rating(movie_id):
     """Logged-in user can update or add a new rating."""
 
-    if session['user_id']:
-        # if rating + userID combo exists
-        # ratings table
+    new_rating = request.form.get('rating')
+
+    rating = Rating.query.filter(Rating.user_id == session['user_id'], 
+                                 Rating.movie_id ==  movie_id).first()
+
+    if rating: 
         # Flask/SQLAlchemy equivalent of UPDATE
-        # else: 
-        # add new rating
+        rating.score = new_rating
 
+        db.session.add(rating)
+        db.session.commit()
 
+        flash("Rating updated!")
+    else: 
+        ## Flask/SQLAlchemy equivalent of INSERT
+        user_rating = Rating(score = new_rating, 
+                             user_id = session['user_id'], 
+                             movie_id =  movie_id
+                             )
+        db.session.add(user_rating)
+        db.session.commit()
+
+        flash("New rating added!")
+
+    return redirect('/movies')
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
